@@ -2,6 +2,7 @@ package main;
 
 import javax.swing.*;
 import java.awt.*;
+import ui.AuthPanel;
 
 // Класс создания окна с переключением разделов в будущем
 public class main_app {
@@ -34,9 +35,8 @@ public class main_app {
 		JPanel basket_pannel = new JPanel();
 		panels.add(basket_pannel, "Корзина");
 		
-		JPanel auth_pannel = new JPanel();
 		// Добавляем данную панель в frame как стартовую при запуске
-		auth_pannel.add(new JLabel("Авторизация"));
+		AuthPanel auth_pannel = new AuthPanel(this);
 		panels.add(auth_pannel, "Авторизация");
 		showPanel("Авторизация");
 		
