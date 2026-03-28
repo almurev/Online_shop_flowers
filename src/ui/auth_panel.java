@@ -6,19 +6,18 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
+import main.main_app; // Импортируем main_app
 
-public class auth_panel { 
+public class auth_panel extends JPanel { // Теперь наследуемся от JPanel
     // ========== БАЗА ДАННЫХ (имитация) ==========
     private static Map<String, User> database = new HashMap<>();
     
     // ========== КОМПОНЕНТЫ ОКНА АВТОРИЗАЦИИ ==========
-    private JFrame authFrame;              // Главное окно
     private JTextField loginField;         // Поле для логина
     private JPasswordField passwordField;  // Поле для пароля
     private JCheckBox showPasswordCheckBox; // Чекбокс показа пароля
     
     // ========== КОМПОНЕНТЫ ОКНА РЕГИСТРАЦИИ ==========
-    private JFrame regFrame;                          // Окно регистрации
     private JTextField regLoginField;                 // Поле логина
     private JTextField regEmailField;                 // Поле email
     private JTextField regPhoneField;                 // Поле телефона
@@ -31,15 +30,13 @@ public class auth_panel {
     private JLabel phoneAvailabilityLabel;   // Метка доступности телефона
     private JLabel passwordMatchLabel;       // Метка совпадения паролей
     
-    // ========== ТОЧКА ВХОДА В ПРОГРАММУ ==========
-    public static void main(String[] args) {
-        // Запускаем GUI в специальном потоке Swing (для безопасности)
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {    
-                new auth_panel().createAndShowAuthGUI();
-            }
-        });
+    // Ссылка на главное приложение
+    private main_app mainApp;
+    
+    // Конструктор, принимающий ссылку на main_app
+    public auth_panel(main_app app) {
+        this.mainApp = app;
+        createAndShowAuthGUI();
     }
     
     /**
@@ -118,20 +115,12 @@ public class auth_panel {
      * СОЗДАЕТ И ПОКАЗЫВАЕТ ОКНО АВТОРИЗАЦИИ
      */
     public void createAndShowAuthGUI() {
-        // ========== 1. СОЗДАЕМ ОКНО ==========
-        authFrame = new JFrame("Авторизация");
-        authFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // Закрытие программы при закрытии окна
-        authFrame.setSize(450, 380);      // Размер окна
-        authFrame.setLocationRelativeTo(null);  // Центрируем на экране
-        authFrame.setResizable(false);     // Запрещаем изменение размера
+        // Устанавливаем менеджер компоновки для панели
+        setLayout(new BorderLayout());
         
-        // ========== 2. ВСТАВЛЯЕМ ФОТО (ВАШ ПУТЬ!) ==========
+        // ========== 1. ВСТАВЛЯЕМ ФОТО (ВАШ ПУТЬ!) ==========
         // ⭐⭐⭐ ВАЖНО: УКАЖИТЕ ПРАВИЛЬНОЕ ИМЯ ФАЙЛА! ⭐⭐⭐
-        // Предположу, что фото называется "background.jpg"
-        // Если имя другое - замените "background.jpg" на ваше имя файла
-        
-        // ВАШ ПУТЬ (обратите внимание на ДВОЙНЫЕ обратные слэши!)
-        String photoPath = "C:\\Users\\Полина\\git\\Online_shop_flowers\\photo\\auth.png";
+        String photoPath = "photo\\auth.png";
         
         System.out.println("Пытаюсь загрузить фото по пути: " + photoPath);
         
@@ -139,11 +128,11 @@ public class auth_panel {
         BackgroundPanel mainPanel = new BackgroundPanel(photoPath);
         // =====================================================
         
-        // ========== 3. СОЗДАЕМ ПАНЕЛЬ С ПОЛЯМИ ВВОДА ==========
+        // ========== 2. СОЗДАЕМ ПАНЕЛЬ С ПОЛЯМИ ВВОДА ==========
         JPanel fieldsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         fieldsPanel.setOpaque(false);  // ВАЖНО! Делаем прозрачной, чтобы видеть фон
         
-        // ========== 4. НАСТРАИВАЕМ ПОЛЕ ЛОГИНА ==========
+        // ========== 3. НАСТРАИВАЕМ ПОЛЕ ЛОГИНА ==========
         loginField = new JTextField();
         loginField.setPreferredSize(new Dimension(200, 35));  // Размер: ширина 200, высота 35
         loginField.setForeground(Color.BLACK);  // Черный текст
@@ -154,7 +143,7 @@ public class auth_panel {
         ));
         setPlaceholder(loginField, "Введите логин");  // Текст-подсказка
         
-        // ========== 5. НАСТРАИВАЕМ ПОЛЕ ПАРОЛЯ ==========
+        // ========== 4. НАСТРАИВАЕМ ПОЛЕ ПАРОЛЯ ==========
         passwordField = new JPasswordField();
         passwordField.setPreferredSize(new Dimension(200, 35));
         passwordField.setForeground(Color.BLACK);
@@ -164,7 +153,7 @@ public class auth_panel {
         ));
         setPlaceholder(passwordField, "Введите пароль");
         
-        // ========== 6. ЧЕКБОКС ДЛЯ ПОКАЗА ПАРОЛЯ ==========
+        // ========== 5. ЧЕКБОКС ДЛЯ ПОКАЗА ПАРОЛЯ ==========
         showPasswordCheckBox = new JCheckBox("Показать пароль");
         showPasswordCheckBox.setOpaque(false);  // Прозрачный фон
         showPasswordCheckBox.setForeground(Color.BLACK);
@@ -180,7 +169,7 @@ public class auth_panel {
             }
         });
         
-        // ========== 7. СОЗДАЕМ МЕТКИ ==========
+        // ========== 6. СОЗДАЕМ МЕТКИ ==========
         JLabel loginLabel = new JLabel("Логин:");
         loginLabel.setForeground(Color.BLACK);
         loginLabel.setFont(new Font("Arial", Font.BOLD, 12));
@@ -195,12 +184,12 @@ public class auth_panel {
         fieldsPanel.add(passwordLabel);     
         fieldsPanel.add(passwordField);
         
-        // ========== 8. ПАНЕЛЬ ДЛЯ КНОПОК ==========
+        // ========== 7. ПАНЕЛЬ ДЛЯ КНОПОК ==========
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 5, 5));
         buttonPanel.setOpaque(false);  // Прозрачный фон
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         
-        // ========== 9. КНОПКА "ВОЙТИ" ==========
+        // ========== 8. КНОПКА "ВОЙТИ" ==========
         JButton loginButton = createRoundedButton("Войти", new Color(255, 255, 255, 220));
         loginButton.setForeground(Color.BLACK);
         loginButton.addActionListener(new ActionListener() {
@@ -213,19 +202,22 @@ public class auth_panel {
                 if (database.containsKey(login)) {
                     User user = database.get(login);
                     if (user.getPassword().equals(password)) { 
-                        JOptionPane.showMessageDialog(authFrame, 
+                        JOptionPane.showMessageDialog(auth_panel.this, 
                             "Добро пожаловать, " + login + "!", 
                             "Успех", 
                             JOptionPane.INFORMATION_MESSAGE);
-                        authFrame.dispose();  // Закрываем окно авторизации
+                        // Переключаемся на панель каталога
+                        if (mainApp != null) {
+                            mainApp.showPanel("Каталог");
+                        }
                     } else {
-                        JOptionPane.showMessageDialog(authFrame, 
+                        JOptionPane.showMessageDialog(auth_panel.this, 
                             "Неверный пароль!", 
                             "Ошибка", 
                             JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(authFrame, 
+                    JOptionPane.showMessageDialog(auth_panel.this, 
                         "Пользователь не найден!", 
                         "Ошибка", 
                         JOptionPane.ERROR_MESSAGE);
@@ -233,7 +225,7 @@ public class auth_panel {
             }
         });
         
-        // ========== 10. ССЫЛКА НА РЕГИСТРАЦИЮ ==========
+        // ========== 9. ССЫЛКА НА РЕГИСТРАЦИЮ ==========
         JButton registerLink = createRoundedButton("Регистрация", new Color(255, 255, 255, 220));
         registerLink.setForeground(Color.BLACK);
         registerLink.setBorderPainted(false);
@@ -242,8 +234,11 @@ public class auth_panel {
         registerLink.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                authFrame.setVisible(false);  // Скрываем окно авторизации
-                createAndShowRegGUI();        // Показываем окно регистрации
+                // Очищаем текущую панель и показываем панель регистрации
+                removeAll();
+                add(createRegPanel(), BorderLayout.CENTER);
+                revalidate();
+                repaint();
             }
         });
         
@@ -252,19 +247,20 @@ public class auth_panel {
         buttonPanel.add(loginButton);
         buttonPanel.add(registerLink);
         
-        // ========== 11. КОНТЕЙНЕР С ОТСТУПАМИ ==========
+        // ========== 10. КОНТЕЙНЕР С ОТСТУПАМИ ==========
         JPanel containerPanel = new JPanel(new BorderLayout(10, 10));
         containerPanel.setOpaque(false);  // Прозрачный
         containerPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
         containerPanel.add(fieldsPanel, BorderLayout.CENTER);
         containerPanel.add(buttonPanel, BorderLayout.SOUTH);
         
-        // ========== 12. ДОБАВЛЯЕМ ВСЕ НА ФОНОВУЮ ПАНЕЛЬ ==========
+        // ========== 11. ДОБАВЛЯЕМ ВСЕ НА ФОНОВУЮ ПАНЕЛЬ ==========
         mainPanel.add(containerPanel, BorderLayout.CENTER);
         
-        // ========== 13. ПОКАЗЫВАЕМ ОКНО ==========
-        authFrame.add(mainPanel);
-        authFrame.setVisible(true);
+        // ========== 12. ДОБАВЛЯЕМ НА ПАНЕЛЬ ==========
+        add(mainPanel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
     }
     
     /**
@@ -374,22 +370,15 @@ public class auth_panel {
     }
     
     /**
-     * Создает и показывает окно регистрации
+     * Создает панель регистрации
      */
-    private void createAndShowRegGUI() {
-        // Создаем окно регистрации
-        regFrame = new JFrame("Регистрация");
-        regFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        regFrame.setSize(500, 600);
-        regFrame.setLocationRelativeTo(null);
-        regFrame.setResizable(false);
+    private JPanel createRegPanel() {
+        // Создаем панель регистрации
+        JPanel regPanel = new JPanel(new BorderLayout());
         
-        // Убираем стандартную рамку у окна
-        regFrame.getRootPane().setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        
-        // ========== ДОБАВЛЯЕМ ФОН В ОКНО РЕГИСТРАЦИИ ==========
+        // ========== ДОБАВЛЯЕМ ФОН В ПАНЕЛЬ РЕГИСТРАЦИИ ==========
         // Путь к фото для регистрации
-        String regPhotoPath = "C:\\Users\\Полина\\git\\Online_shop_flowers\\photo\\reg1.png";
+        String regPhotoPath = "photo\\reg1.png";
         
         System.out.println("Пытаюсь загрузить фото регистрации по пути: " + regPhotoPath);
         
@@ -624,8 +613,11 @@ public class auth_panel {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                regFrame.dispose();
-                authFrame.setVisible(true);
+                // Возвращаемся к панели авторизации
+                removeAll();
+                createAndShowAuthGUI();
+                revalidate();
+                repaint();
             }
         });
         
@@ -634,9 +626,9 @@ public class auth_panel {
         
         mainPanel.add(fieldsPanel, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        regPanel.add(mainPanel, BorderLayout.CENTER);
         
-        regFrame.add(mainPanel);
-        regFrame.setVisible(true);
+        return regPanel;
     }
     
     /**
@@ -648,61 +640,178 @@ public class auth_panel {
     }
     
     /**
-     * Устанавливает текст-подсказку в текстовое поле
+     * Проверка доступности логина
      */
-    private void setPlaceholder(JTextField field, String placeholder) {
-        Color originalColor = field.getForeground();
+    private void checkLoginAvailability() {
+        String login = regLoginField.getText();
+        if (login.isEmpty() || login.equals("Введите логин")) {
+            loginAvailabilityLabel.setText("");
+            return;
+        }
         
-        field.setText(placeholder);
-        field.setForeground(Color.GRAY); // Серый цвет для подсказки
-        
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK); // Черный при вводе
-                }
-            }
-            
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().isEmpty()) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY); // Серый для подсказки
-                }
-            }
-        });
+        if (database.containsKey(login)) {
+            loginAvailabilityLabel.setText("✗ Логин уже занят");
+            loginAvailabilityLabel.setForeground(Color.RED);
+        } else {
+            loginAvailabilityLabel.setText("✓ Логин доступен");
+            loginAvailabilityLabel.setForeground(new Color(0, 150, 0));
+        }
     }
     
     /**
-     * Перегруженный метод для JPasswordField
+     * Проверка доступности email
      */
-    private void setPlaceholder(JPasswordField field, String placeholder) {
-        Color originalColor = field.getForeground();
-        field.setText(placeholder);
-        field.setForeground(Color.GRAY); // Серый цвет для подсказки
-        field.setEchoChar((char) 0);
+    private void checkEmailAvailability() {
+        String email = regEmailField.getText();
+        if (email.isEmpty() || email.equals("example@mail.com")) {
+            emailAvailabilityLabel.setText("");
+            return;
+        }
         
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (new String(field.getPassword()).equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK); // Черный при вводе
-                    field.setEchoChar('•');
-                }
+        boolean emailExists = false;
+        for (User user : database.values()) {
+            if (user.getEmail().equals(email)) {
+                emailExists = true;
+                break;
             }
-            
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getPassword().length == 0) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY); // Серый для подсказки
-                    field.setEchoChar((char) 0);
-                }
+        }
+        
+        if (emailExists) {
+            emailAvailabilityLabel.setText("✗ Email уже используется");
+            emailAvailabilityLabel.setForeground(Color.RED);
+        } else if (!isValidEmail(email)) {
+            emailAvailabilityLabel.setText("✗ Неверный формат email");
+            emailAvailabilityLabel.setForeground(Color.RED);
+        } else {
+            emailAvailabilityLabel.setText("✓ Email доступен");
+            emailAvailabilityLabel.setForeground(new Color(0, 150, 0));
+        }
+    }
+    
+    /**
+     * Проверка доступности телефона
+     */
+    private void checkPhoneAvailability() {
+        String phone = regPhoneField.getText();
+        if (phone.isEmpty() || phone.equals("+7 (999) 123-45-67")) {
+            phoneAvailabilityLabel.setText("");
+            return;
+        }
+        
+        boolean phoneExists = false;
+        for (User user : database.values()) {
+            if (user.getPhone().equals(phone)) {
+                phoneExists = true;
+                break;
             }
-        });
+        }
+        
+        if (phoneExists) {
+            phoneAvailabilityLabel.setText("✗ Телефон уже используется");
+            phoneAvailabilityLabel.setForeground(Color.RED);
+        } else {
+            phoneAvailabilityLabel.setText("✓ Телефон доступен");
+            phoneAvailabilityLabel.setForeground(new Color(0, 150, 0));
+        }
+    }
+    
+    /**
+     * Проверка совпадения паролей
+     */
+    private void checkPasswordMatch() {
+        String password = new String(regPasswordField.getPassword());
+        String confirmPassword = new String(regConfirmPasswordField.getPassword());
+        
+        if (password.isEmpty() || confirmPassword.isEmpty() || 
+            password.equals("Введите пароль") || confirmPassword.equals("Повторите пароль")) {
+            passwordMatchLabel.setText("");
+            return;
+        }
+        
+        if (password.equals(confirmPassword)) {
+            passwordMatchLabel.setText("✓ Пароли совпадают");
+            passwordMatchLabel.setForeground(new Color(0, 150, 0));
+        } else {
+            passwordMatchLabel.setText("✗ Пароли не совпадают");
+            passwordMatchLabel.setForeground(Color.RED);
+        }
+    }
+    
+    /**
+     * Регистрация пользователя
+     */
+    private void registerUser() {
+        String login = regLoginField.getText();
+        String email = regEmailField.getText();
+        String phone = regPhoneField.getText();
+        String password = new String(regPasswordField.getPassword());
+        String confirmPassword = new String(regConfirmPasswordField.getPassword());
+        
+        // Проверка заполнения полей
+        if (login.isEmpty() || login.equals("Введите логин") ||
+            email.isEmpty() || email.equals("example@mail.com") ||
+            phone.isEmpty() || phone.equals("+7 (999) 123-45-67") ||
+            password.isEmpty() || password.equals("Введите пароль") ||
+            confirmPassword.isEmpty() || confirmPassword.equals("Повторите пароль")) {
+            JOptionPane.showMessageDialog(auth_panel.this, "Заполните все поля!", 
+                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Проверка логина
+        if (database.containsKey(login)) {
+            JOptionPane.showMessageDialog(auth_panel.this, "Логин уже существует!", 
+                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Проверка email
+        boolean emailExists = false;
+        for (User user : database.values()) {
+            if (user.getEmail().equals(email)) {
+                emailExists = true;
+                break;
+            }
+        }
+        if (emailExists || !isValidEmail(email)) {
+            JOptionPane.showMessageDialog(auth_panel.this, "Email недействителен или уже используется!", 
+                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Проверка телефона
+        boolean phoneExists = false;
+        for (User user : database.values()) {
+            if (user.getPhone().equals(phone)) {
+                phoneExists = true;
+                break;
+            }
+        }
+        if (phoneExists) {
+            JOptionPane.showMessageDialog(auth_panel.this, "Телефон уже используется!", 
+                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Проверка пароля
+        if (!password.equals(confirmPassword)) {
+            JOptionPane.showMessageDialog(auth_panel.this, "Пароли не совпадают!", 
+                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Добавляем пользователя
+        User newUser = new User(login, email, password, phone);
+        database.put(login, newUser);
+        
+        JOptionPane.showMessageDialog(auth_panel.this, "Регистрация успешна!", 
+                                     "Успех", JOptionPane.INFORMATION_MESSAGE);
+        
+        // Возвращаемся к панели авторизации
+        removeAll();
+        createAndShowAuthGUI();
+        revalidate();
+        repaint();
     }
     
     /**

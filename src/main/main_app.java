@@ -2,7 +2,7 @@ package main;
 
 import javax.swing.*;
 import java.awt.*;
-import ui.AuthPanel;
+import ui.auth_panel;
 
 // Класс создания окна с переключением разделов в будущем
 public class main_app {
@@ -15,7 +15,7 @@ public class main_app {
 	private void create_frame() {
 		// Создаем окно приложения
 		frame = new JFrame("Онлайн-магазин цветов");
-		frame.setSize(800, 800);
+		frame.setSize(600, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// Запихиваем в менеджер компоновки вкладки для открытия разделов
@@ -36,8 +36,8 @@ public class main_app {
 		panels.add(basket_pannel, "Корзина");
 		
 		// Добавляем данную панель в frame как стартовую при запуске
-		AuthPanel auth_pannel = new AuthPanel(this);
-		panels.add(auth_pannel, "Авторизация");
+		auth_panel AuthPanel = new auth_panel(this);
+		panels.add(AuthPanel, "Авторизация");
 		showPanel("Авторизация");
 		
 		frame.add(panels, BorderLayout.CENTER);
