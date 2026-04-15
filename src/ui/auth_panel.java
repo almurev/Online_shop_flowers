@@ -4,13 +4,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.HashMap;
-import java.util.Map;
-import main.main_app; // Импортируем main_app
+import main.main_app; 
 
 public class auth_panel extends JPanel { // Теперь наследуемся от JPanel
-    // ========== БАЗА ДАННЫХ (имитация) ==========
-    private static Map<String, User> database = new HashMap<>();
     
     // ========== КОМПОНЕНТЫ ОКНА АВТОРИЗАЦИИ ==========
     private JTextField loginField;         // Поле для логина
@@ -197,31 +193,6 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             public void actionPerformed(ActionEvent e) {
                 String login = loginField.getText();
                 String password = new String(passwordField.getPassword());
-                
-                // Проверяем, существует ли пользователь в базе
-                if (database.containsKey(login)) {
-                    User user = database.get(login);
-                    if (user.getPassword().equals(password)) { 
-                        JOptionPane.showMessageDialog(auth_panel.this, 
-                            "Добро пожаловать, " + login + "!", 
-                            "Успех", 
-                            JOptionPane.INFORMATION_MESSAGE);
-                        // Переключаемся на панель каталога
-                        if (mainApp != null) {
-                            mainApp.showPanel("Каталог");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(auth_panel.this, 
-                            "Неверный пароль!", 
-                            "Ошибка", 
-                            JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(auth_panel.this, 
-                        "Пользователь не найден!", 
-                        "Ошибка", 
-                        JOptionPane.ERROR_MESSAGE);
-                }
             }
         });
         
@@ -434,7 +405,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         regLoginField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkLoginAvailability();
+                
             }
         });
         
@@ -476,7 +447,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         regEmailField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkEmailAvailability();
+               
             }
         });
         
@@ -518,7 +489,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         regPhoneField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkPhoneAvailability();
+                
             }
         });
         
@@ -585,7 +556,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         KeyAdapter passwordCheckAdapter = new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                checkPasswordMatch();
+                
             }
         };
         regPasswordField.addKeyListener(passwordCheckAdapter);
@@ -602,7 +573,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                registerUser();
+               
             }
         });
         
@@ -629,210 +600,5 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         regPanel.add(mainPanel, BorderLayout.CENTER);
         
         return regPanel;
-    }
-    
-    /**
-     * Проверка email
-     */
-    private boolean isValidEmail(String email) {
-        return email.contains("@") && email.contains(".") && 
-               email.indexOf("@") < email.lastIndexOf(".");
-    }
-    
-    /**
-     * Проверка доступности логина
-     */
-    private void checkLoginAvailability() {
-        String login = regLoginField.getText();
-        if (login.isEmpty() || login.equals("Введите логин")) {
-            loginAvailabilityLabel.setText("");
-            return;
-        }
-        
-        if (database.containsKey(login)) {
-            loginAvailabilityLabel.setText("✗ Логин уже занят");
-            loginAvailabilityLabel.setForeground(Color.RED);
-        } else {
-            loginAvailabilityLabel.setText("✓ Логин доступен");
-            loginAvailabilityLabel.setForeground(new Color(0, 150, 0));
-        }
-    }
-    
-    /**
-     * Проверка доступности email
-     */
-    private void checkEmailAvailability() {
-        String email = regEmailField.getText();
-        if (email.isEmpty() || email.equals("example@mail.com")) {
-            emailAvailabilityLabel.setText("");
-            return;
-        }
-        
-        boolean emailExists = false;
-        for (User user : database.values()) {
-            if (user.getEmail().equals(email)) {
-                emailExists = true;
-                break;
-            }
-        }
-        
-        if (emailExists) {
-            emailAvailabilityLabel.setText("✗ Email уже используется");
-            emailAvailabilityLabel.setForeground(Color.RED);
-        } else if (!isValidEmail(email)) {
-            emailAvailabilityLabel.setText("✗ Неверный формат email");
-            emailAvailabilityLabel.setForeground(Color.RED);
-        } else {
-            emailAvailabilityLabel.setText("✓ Email доступен");
-            emailAvailabilityLabel.setForeground(new Color(0, 150, 0));
-        }
-    }
-    
-    /**
-     * Проверка доступности телефона
-     */
-    private void checkPhoneAvailability() {
-        String phone = regPhoneField.getText();
-        if (phone.isEmpty() || phone.equals("+7 (999) 123-45-67")) {
-            phoneAvailabilityLabel.setText("");
-            return;
-        }
-        
-        boolean phoneExists = false;
-        for (User user : database.values()) {
-            if (user.getPhone().equals(phone)) {
-                phoneExists = true;
-                break;
-            }
-        }
-        
-        if (phoneExists) {
-            phoneAvailabilityLabel.setText("✗ Телефон уже используется");
-            phoneAvailabilityLabel.setForeground(Color.RED);
-        } else {
-            phoneAvailabilityLabel.setText("✓ Телефон доступен");
-            phoneAvailabilityLabel.setForeground(new Color(0, 150, 0));
-        }
-    }
-    
-    /**
-     * Проверка совпадения паролей
-     */
-    private void checkPasswordMatch() {
-        String password = new String(regPasswordField.getPassword());
-        String confirmPassword = new String(regConfirmPasswordField.getPassword());
-        
-        if (password.isEmpty() || confirmPassword.isEmpty() || 
-            password.equals("Введите пароль") || confirmPassword.equals("Повторите пароль")) {
-            passwordMatchLabel.setText("");
-            return;
-        }
-        
-        if (password.equals(confirmPassword)) {
-            passwordMatchLabel.setText("✓ Пароли совпадают");
-            passwordMatchLabel.setForeground(new Color(0, 150, 0));
-        } else {
-            passwordMatchLabel.setText("✗ Пароли не совпадают");
-            passwordMatchLabel.setForeground(Color.RED);
-        }
-    }
-    
-    /**
-     * Регистрация пользователя
-     */
-    private void registerUser() {
-        String login = regLoginField.getText();
-        String email = regEmailField.getText();
-        String phone = regPhoneField.getText();
-        String password = new String(regPasswordField.getPassword());
-        String confirmPassword = new String(regConfirmPasswordField.getPassword());
-        
-        // Проверка заполнения полей
-        if (login.isEmpty() || login.equals("Введите логин") ||
-            email.isEmpty() || email.equals("example@mail.com") ||
-            phone.isEmpty() || phone.equals("+7 (999) 123-45-67") ||
-            password.isEmpty() || password.equals("Введите пароль") ||
-            confirmPassword.isEmpty() || confirmPassword.equals("Повторите пароль")) {
-            JOptionPane.showMessageDialog(auth_panel.this, "Заполните все поля!", 
-                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Проверка логина
-        if (database.containsKey(login)) {
-            JOptionPane.showMessageDialog(auth_panel.this, "Логин уже существует!", 
-                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Проверка email
-        boolean emailExists = false;
-        for (User user : database.values()) {
-            if (user.getEmail().equals(email)) {
-                emailExists = true;
-                break;
-            }
-        }
-        if (emailExists || !isValidEmail(email)) {
-            JOptionPane.showMessageDialog(auth_panel.this, "Email недействителен или уже используется!", 
-                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Проверка телефона
-        boolean phoneExists = false;
-        for (User user : database.values()) {
-            if (user.getPhone().equals(phone)) {
-                phoneExists = true;
-                break;
-            }
-        }
-        if (phoneExists) {
-            JOptionPane.showMessageDialog(auth_panel.this, "Телефон уже используется!", 
-                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Проверка пароля
-        if (!password.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(auth_panel.this, "Пароли не совпадают!", 
-                                         "Ошибка", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Добавляем пользователя
-        User newUser = new User(login, email, password, phone);
-        database.put(login, newUser);
-        
-        JOptionPane.showMessageDialog(auth_panel.this, "Регистрация успешна!", 
-                                     "Успех", JOptionPane.INFORMATION_MESSAGE);
-        
-        // Возвращаемся к панели авторизации
-        removeAll();
-        createAndShowAuthGUI();
-        revalidate();
-        repaint();
-    }
-    
-    /**
-     * Внутренний класс User
-     */
-    class User {
-        private String login;
-        private String email;
-        private String password;
-        private String phone;
-        
-        public User(String login, String email, String password, String phone) {
-            this.login = login;
-            this.email = email;
-            this.password = password;
-            this.phone = phone;
-        }
-        
-        public String getLogin() { return login; }
-        public String getEmail() { return email; }
-        public String getPassword() { return password; }
-        public String getPhone() { return phone; }
     }
 }
