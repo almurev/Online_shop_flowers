@@ -5,6 +5,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import main.main_app; 
+import services.user_service;
 
 public class auth_panel extends JPanel { // Теперь наследуемся от JPanel
     
@@ -26,579 +27,303 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
     private JLabel phoneAvailabilityLabel;   // Метка доступности телефона
     private JLabel passwordMatchLabel;       // Метка совпадения паролей
     
+    // ========== ИНИЦИАЛИЗАЦИЯ МЕТОДОВ ПРОВЕРКИ ==========
+    private user_service userService = new user_service();
+    
     // Ссылка на главное приложение
     private main_app mainApp;
     
-    // Конструктор, принимающий ссылку на main_app
     public auth_panel(main_app app) {
         this.mainApp = app;
         createAndShowAuthGUI();
     }
-    
-    /**
-     * КЛАСС ДЛЯ ФОНОВОЙ ПАНЕЛИ
-     * Этот класс умеет рисовать фоновое изображение
-     */
+
+    // =========================================================
+    // UI: ФОНОВАЯ ПАНЕЛЬ
+    // =========================================================
     class BackgroundPanel extends JPanel {
-        private Image backgroundImage;  // Здесь будет храниться наше фото
-        
-        /**
-         * КОНСТРУКТОР: принимает путь к фото
-         * @param imagePath - полный путь к файлу с фото
-         */
+        private Image backgroundImage;
+
         public BackgroundPanel(String imagePath) {
             try {
-                // 1. Создаем объект File для проверки существования файла
                 java.io.File imageFile = new java.io.File(imagePath);
-                
-                // 2. Проверяем, существует ли файл
+
                 if (imageFile.exists()) {
-                    // 3. Загружаем изображение по пути
                     backgroundImage = new ImageIcon(imagePath).getImage();
                     System.out.println("✓ Фото успешно загружено!");
-                    System.out.println("  Путь: " + imagePath);
-                    System.out.println("  Размер файла: " + imageFile.length() + " байт");
                 } else {
                     System.err.println("✗ ОШИБКА: Файл не найден!");
-                    System.err.println("  Искали по пути: " + imagePath);
-                    System.err.println("  Проверьте правильность пути и имя файла!");
                 }
             } catch (Exception e) {
                 System.err.println("✗ ОШИБКА при загрузке фото: " + e.getMessage());
-                e.printStackTrace();
             }
-            
-            // Устанавливаем менеджер компоновки (как будут располагаться элементы)
+
             setLayout(new BorderLayout());
-            
-            // Делаем панель прозрачной, чтобы был виден наш фон
             setOpaque(false);
         }
-        
-        /**
-         * МЕТОД ОТРИСОВКИ
-         * Swing вызывает этот метод каждый раз, когда нужно нарисовать панель
-         */
+
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);  // Сначала рисуем стандартные компоненты
-            
-            // Если фото загружено - рисуем его
+            super.paintComponent(g);
+
             if (backgroundImage != null) {
-                // Преобразуем Graphics в Graphics2D (более мощный инструмент)
                 Graphics2D g2d = (Graphics2D) g.create();
-                
-                // Включаем сглаживание для плавного масштабирования
+
                 g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                                     RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                
-                // Рисуем фото, растягивая на всю панель
-                // 0, 0 - координаты верхнего левого угла
-                // getWidth(), getHeight() - размеры панели
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
                 g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-                
-                // Освобождаем ресурсы
                 g2d.dispose();
             } else {
-                // Если фото не загрузилось - заливаем белым фоном
                 g.setColor(Color.WHITE);
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
         }
     }
 
-    /**
-     * СОЗДАЕТ И ПОКАЗЫВАЕТ ОКНО АВТОРИЗАЦИИ
-     */
+    // =========================================================
+    // UI: АВТОРИЗАЦИЯ
+    // =========================================================
     public void createAndShowAuthGUI() {
-        // Устанавливаем менеджер компоновки для панели
+
         setLayout(new BorderLayout());
-        
-        // ========== 1. ВСТАВЛЯЕМ ФОТО (ВАШ ПУТЬ!) ==========
-        // ⭐⭐⭐ ВАЖНО: УКАЖИТЕ ПРАВИЛЬНОЕ ИМЯ ФАЙЛА! ⭐⭐⭐
+
         String photoPath = "photo\\auth.png";
-        
-        System.out.println("Пытаюсь загрузить фото по пути: " + photoPath);
-        
-        // Создаем панель с фоновым изображением
+
         BackgroundPanel mainPanel = new BackgroundPanel(photoPath);
-        // =====================================================
-        
-        // ========== 2. СОЗДАЕМ ПАНЕЛЬ С ПОЛЯМИ ВВОДА ==========
+
         JPanel fieldsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        fieldsPanel.setOpaque(false);  // ВАЖНО! Делаем прозрачной, чтобы видеть фон
-        
-        // ========== 3. НАСТРАИВАЕМ ПОЛЕ ЛОГИНА ==========
+        fieldsPanel.setOpaque(false);
+
         loginField = new JTextField();
-        loginField.setPreferredSize(new Dimension(200, 35));  // Размер: ширина 200, высота 35
-        loginField.setForeground(Color.BLACK);  // Черный текст
-        // Добавляем рамку (серая линия + отступы внутри)
-        loginField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
-        setPlaceholder(loginField, "Введите логин");  // Текст-подсказка
-        
-        // ========== 4. НАСТРАИВАЕМ ПОЛЕ ПАРОЛЯ ==========
+        setPlaceholder(loginField, "Введите логин");
+
         passwordField = new JPasswordField();
-        passwordField.setPreferredSize(new Dimension(200, 35));
-        passwordField.setForeground(Color.BLACK);
-        passwordField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
         setPlaceholder(passwordField, "Введите пароль");
         
-        // ========== 5. ЧЕКБОКС ДЛЯ ПОКАЗА ПАРОЛЯ ==========
+        
+
         showPasswordCheckBox = new JCheckBox("Показать пароль");
-        showPasswordCheckBox.setOpaque(false);  // Прозрачный фон
-        showPasswordCheckBox.setForeground(Color.BLACK);
-        showPasswordCheckBox.setFocusPainted(false);  // Убираем рамку фокуса
-        showPasswordCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (showPasswordCheckBox.isSelected()) {
-                    passwordField.setEchoChar((char) 0);  // Показываем пароль
-                } else {
-                    passwordField.setEchoChar('•');      // Скрываем пароль
-                }
+        showPasswordCheckBox.setOpaque(false);
+        showPasswordCheckBox.addActionListener(e -> {
+            if (showPasswordCheckBox.isSelected()) {
+                passwordField.setEchoChar((char) 0);
+            } else {
+                passwordField.setEchoChar('•');
             }
         });
-        
-        // ========== 6. СОЗДАЕМ МЕТКИ ==========
+
         JLabel loginLabel = new JLabel("Логин:");
-        loginLabel.setForeground(Color.BLACK);
-        loginLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        
         JLabel passwordLabel = new JLabel("Пароль:");
-        passwordLabel.setForeground(Color.BLACK);
-        passwordLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        
-        // Добавляем метки и поля на панель
-        fieldsPanel.add(loginLabel);     
-        fieldsPanel.add(loginField);                
-        fieldsPanel.add(passwordLabel);     
+
+        fieldsPanel.add(loginLabel);
+        fieldsPanel.add(loginField);
+        fieldsPanel.add(passwordLabel);
         fieldsPanel.add(passwordField);
-        
-        // ========== 7. ПАНЕЛЬ ДЛЯ КНОПОК ==========
+
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 5, 5));
-        buttonPanel.setOpaque(false);  // Прозрачный фон
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        
-        // ========== 8. КНОПКА "ВОЙТИ" ==========
+        buttonPanel.setOpaque(false);
+
         JButton loginButton = createRoundedButton("Войти", new Color(255, 255, 255, 220));
-        loginButton.setForeground(Color.BLACK);
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String login = loginField.getText();
-                String password = new String(passwordField.getPassword());
+        loginButton.addActionListener(e -> {
+            String login = loginField.getText();
+            String password = new String(passwordField.getPassword());
+
+            boolean success = userService.login(login, password);
+            
+            if (success) {
+            	JOptionPane.showMessageDialog(this, "Успешный вход");
+            } else {
+            	JOptionPane.showMessageDialog(this, "Неверный логин или пароль");
             }
         });
-        
-        // ========== 9. ССЫЛКА НА РЕГИСТРАЦИЮ ==========
+
         JButton registerLink = createRoundedButton("Регистрация", new Color(255, 255, 255, 220));
-        registerLink.setForeground(Color.BLACK);
-        registerLink.setBorderPainted(false);
-        registerLink.setContentAreaFilled(false);
-        registerLink.setCursor(new Cursor(Cursor.HAND_CURSOR));  // Курсор-рука
-        registerLink.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Очищаем текущую панель и показываем панель регистрации
-                removeAll();
-                add(createRegPanel(), BorderLayout.CENTER);
-                revalidate();
-                repaint();
-            }
+        registerLink.addActionListener(e -> {
+            removeAll();
+            add(createRegPanel(), BorderLayout.CENTER);
+            revalidate();
+            repaint();
         });
-        
-        // Добавляем компоненты на панель кнопок
+
         buttonPanel.add(showPasswordCheckBox);
         buttonPanel.add(loginButton);
         buttonPanel.add(registerLink);
-        
-        // ========== 10. КОНТЕЙНЕР С ОТСТУПАМИ ==========
-        JPanel containerPanel = new JPanel(new BorderLayout(10, 10));
-        containerPanel.setOpaque(false);  // Прозрачный
-        containerPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
-        containerPanel.add(fieldsPanel, BorderLayout.CENTER);
-        containerPanel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        // ========== 11. ДОБАВЛЯЕМ ВСЕ НА ФОНОВУЮ ПАНЕЛЬ ==========
-        mainPanel.add(containerPanel, BorderLayout.CENTER);
-        
-        // ========== 12. ДОБАВЛЯЕМ НА ПАНЕЛЬ ==========
+
+        JPanel container = new JPanel(new BorderLayout());
+        container.setOpaque(false);
+
+        container.add(fieldsPanel, BorderLayout.CENTER);
+        container.add(buttonPanel, BorderLayout.SOUTH);
+
+        mainPanel.add(container, BorderLayout.CENTER);
+
         add(mainPanel, BorderLayout.CENTER);
         revalidate();
         repaint();
     }
-    
-    /**
-     * СОЗДАЕТ КНОПКУ С ОВАЛЬНЫМИ УГЛАМИ
-     */
-    private JButton createRoundedButton(String text, Color bgColor) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                // Включаем сглаживание для плавных краев
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                                   RenderingHints.VALUE_ANTIALIAS_ON);
-                // Рисуем закругленный прямоугольник (радиус 15)
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-                // Рисуем текст
-                super.paintComponent(g2);
-                g2.dispose();
-            }
-            
-            @Override
-            protected void paintBorder(Graphics g) {
-                // Не рисуем рамку
-            }
-        };
-        
-        button.setText(text);
-        button.setBackground(bgColor);
-        button.setForeground(Color.BLACK);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setOpaque(false);
-        button.setPreferredSize(new Dimension(150, 40));
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        // Эффект при наведении мыши
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(new Color(245, 245, 245, 220));
-            }
-            
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(bgColor);
-            }
-        });
-        
-        return button;
-    }
-    
-    /**
-     * УСТАНАВЛИВАЕТ ТЕКСТ-ПОДСКАЗКУ (PLACEHOLDER) ДЛЯ JTextField
-     */
-    private void setPlaceholder(JTextField field, String placeholder) {
-        field.setText(placeholder);
-        field.setForeground(Color.GRAY);  // Серый цвет для подсказки
-        
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);  // Черный при вводе
-                }
-            }
-            
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().isEmpty()) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY);  // Серый для подсказки
-                }
-            }
-        });
-    }
-    
-    /**
-     * УСТАНАВЛИВАЕТ ТЕКСТ-ПОДСКАЗКУ ДЛЯ JPasswordField
-     */
-    private void setPlaceholder(JPasswordField field, String placeholder) {
-        field.setText(placeholder);
-        field.setForeground(Color.GRAY);
-        field.setEchoChar((char) 0);  // Показываем текст подсказки
-        
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (new String(field.getPassword()).equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                    field.setEchoChar('•');  // Скрываем пароль
-                }
-            }
-            
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getPassword().length == 0) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY);
-                    field.setEchoChar((char) 0);
-                }
-            }
-        });
-    }
-    
-    /**
-     * Создает панель регистрации
-     */
+
+    // =========================================================
+    // UI: РЕГИСТРАЦИЯ (ЧИСТАЯ ВЕРСИЯ)
+    // =========================================================
     private JPanel createRegPanel() {
-        // Создаем панель регистрации
+
         JPanel regPanel = new JPanel(new BorderLayout());
-        
-        // ========== ДОБАВЛЯЕМ ФОН В ПАНЕЛЬ РЕГИСТРАЦИИ ==========
-        // Путь к фото для регистрации
-        String regPhotoPath = "photo\\reg1.png";
-        
-        System.out.println("Пытаюсь загрузить фото регистрации по пути: " + regPhotoPath);
-        
-        // Создаем фоновую панель
-        BackgroundPanel mainPanel = new BackgroundPanel(regPhotoPath);
-        // ======================================================
-        
-        // Используем GridBagLayout для гибкого размещения
+
+        BackgroundPanel mainPanel = new BackgroundPanel("photo\\reg1.png");
+
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
-        fieldsPanel.setOpaque(false); // Делаем прозрачным, чтобы видеть фон
+        fieldsPanel.setOpaque(false);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(8, 8, 8, 8);
-        
-        // Размер для всех полей ввода
-        Dimension fieldSize = new Dimension(250, 35);
-        
-        // ========== ПОЛЕ ЛОГИНА ==========
+
+        // ЛОГИН
         gbc.gridx = 0;
         gbc.gridy = 0;
-        JLabel loginLabel = new JLabel("Логин:");
-        loginLabel.setForeground(Color.BLACK); // Черный текст
-        loginLabel.setOpaque(true);
-        loginLabel.setBackground(new Color(255, 255, 255, 200)); // Полупрозрачный фон
-        loginLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        fieldsPanel.add(loginLabel, gbc);
-        
+        fieldsPanel.add(new JLabel("Логин:"), gbc);
+
         gbc.gridx = 1;
-        gbc.gridy = 0;
         regLoginField = new JTextField();
-        regLoginField.setPreferredSize(fieldSize);
-        regLoginField.setForeground(Color.BLACK); // Черный текст
-        regLoginField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
         setPlaceholder(regLoginField, "Введите логин");
         fieldsPanel.add(regLoginField, gbc);
-        
-        // Метка проверки доступности логина
-        gbc.gridx = 1;
-        gbc.gridy = 1;
+
         loginAvailabilityLabel = new JLabel();
-        loginAvailabilityLabel.setFont(new Font("Arial", Font.ITALIC, 10));
-        loginAvailabilityLabel.setOpaque(true);
-        loginAvailabilityLabel.setBackground(new Color(255, 255, 255, 200));
-        loginAvailabilityLabel.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        gbc.gridy = 1;
         fieldsPanel.add(loginAvailabilityLabel, gbc);
-        
+
         regLoginField.addKeyListener(new KeyAdapter() {
-            @Override
             public void keyReleased(KeyEvent e) {
+                String reg_login = regLoginField.getText();
                 
+                boolean success_reg_login = userService.check_username(reg_login);
+                if (reg_login.isEmpty()){
+                	loginAvailabilityLabel.setText("");
+                } else if (success_reg_login) {
+                	loginAvailabilityLabel.setText("Логин доступен");
+                } else {
+                	loginAvailabilityLabel.setText("Логин занят или некорректный");
+                }
             }
         });
-        
-        // ========== ПОЛЕ EMAIL ==========
+
+        // EMAIL
         gbc.gridx = 0;
         gbc.gridy = 2;
-        JLabel emailLabel = new JLabel("Email:");
-        emailLabel.setForeground(Color.BLACK); // Черный текст
-        emailLabel.setOpaque(true);
-        emailLabel.setBackground(new Color(255, 255, 255, 200));
-        emailLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        fieldsPanel.add(emailLabel, gbc);
-        
+        fieldsPanel.add(new JLabel("Email:"), gbc);
+
         gbc.gridx = 1;
-        gbc.gridy = 2;
         regEmailField = new JTextField();
-        regEmailField.setPreferredSize(fieldSize);
-        regEmailField.setForeground(Color.BLACK); // Черный текст
-        regEmailField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
         setPlaceholder(regEmailField, "example@mail.com");
         fieldsPanel.add(regEmailField, gbc);
-        
-        // Метка проверки доступности email
-        gbc.gridx = 1;
-        gbc.gridy = 3;
+
         emailAvailabilityLabel = new JLabel();
-        emailAvailabilityLabel.setFont(new Font("Arial", Font.ITALIC, 10));
-        emailAvailabilityLabel.setOpaque(true);
-        emailAvailabilityLabel.setBackground(new Color(255, 255, 255, 200));
-        emailAvailabilityLabel.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        gbc.gridy = 3;
         fieldsPanel.add(emailAvailabilityLabel, gbc);
-        
+
         regEmailField.addKeyListener(new KeyAdapter() {
-            @Override
             public void keyReleased(KeyEvent e) {
-               
+                emailAvailabilityLabel.setText("");
             }
         });
-        
-        // ========== ПОЛЕ ТЕЛЕФОНА ==========
+
+        // PHONE
         gbc.gridx = 0;
         gbc.gridy = 4;
-        JLabel phoneLabel = new JLabel("Номер телефона:");
-        phoneLabel.setForeground(Color.BLACK); // Черный текст
-        phoneLabel.setOpaque(true);
-        phoneLabel.setBackground(new Color(255, 255, 255, 200));
-        phoneLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        fieldsPanel.add(phoneLabel, gbc);
-        
+        fieldsPanel.add(new JLabel("Телефон:"), gbc);
+
         gbc.gridx = 1;
-        gbc.gridy = 4;
         regPhoneField = new JTextField();
-        regPhoneField.setPreferredSize(fieldSize);
-        regPhoneField.setForeground(Color.BLACK); // Черный текст
-        regPhoneField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
         setPlaceholder(regPhoneField, "+7 (999) 123-45-67");
         fieldsPanel.add(regPhoneField, gbc);
-        
-        // Метка проверки доступности телефона
-        gbc.gridx = 1;
-        gbc.gridy = 5;
+
         phoneAvailabilityLabel = new JLabel();
-        phoneAvailabilityLabel.setFont(new Font("Arial", Font.ITALIC, 10));
-        phoneAvailabilityLabel.setOpaque(true);
-        phoneAvailabilityLabel.setBackground(new Color(255, 255, 255, 200));
-        phoneAvailabilityLabel.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        gbc.gridy = 5;
         fieldsPanel.add(phoneAvailabilityLabel, gbc);
-        
+
         regPhoneField.addKeyListener(new KeyAdapter() {
-            @Override
             public void keyReleased(KeyEvent e) {
-                
+                phoneAvailabilityLabel.setText("");
             }
         });
-        
-        // ========== ПОЛЕ ПАРОЛЯ ==========
+
+        // PASSWORD
         gbc.gridx = 0;
         gbc.gridy = 6;
-        JLabel passwordLabel = new JLabel("Пароль:");
-        passwordLabel.setForeground(Color.BLACK); // Черный текст
-        passwordLabel.setOpaque(true);
-        passwordLabel.setBackground(new Color(255, 255, 255, 200));
-        passwordLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        fieldsPanel.add(passwordLabel, gbc);
-        
+        fieldsPanel.add(new JLabel("Пароль:"), gbc);
+
         gbc.gridx = 1;
-        gbc.gridy = 6;
         regPasswordField = new JPasswordField();
-        regPasswordField.setPreferredSize(fieldSize);
-        regPasswordField.setForeground(Color.BLACK); // Черный текст
-        regPasswordField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
         setPlaceholder(regPasswordField, "Введите пароль");
         fieldsPanel.add(regPasswordField, gbc);
-        
-        // ========== ПОЛЕ ПОДТВЕРЖДЕНИЯ ПАРОЛЯ ==========
+
+        // CONFIRM
         gbc.gridx = 0;
         gbc.gridy = 7;
-        JLabel confirmLabel = new JLabel("Подтверждение пароля:");
-        confirmLabel.setForeground(Color.BLACK); // Черный текст
-        confirmLabel.setOpaque(true);
-        confirmLabel.setBackground(new Color(255, 255, 255, 200));
-        confirmLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        fieldsPanel.add(confirmLabel, gbc);
-        
+        fieldsPanel.add(new JLabel("Повтор:"), gbc);
+
         gbc.gridx = 1;
-        gbc.gridy = 7;
         regConfirmPasswordField = new JPasswordField();
-        regConfirmPasswordField.setPreferredSize(fieldSize);
-        regConfirmPasswordField.setForeground(Color.BLACK); // Черный текст
-        regConfirmPasswordField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
         setPlaceholder(regConfirmPasswordField, "Повторите пароль");
         fieldsPanel.add(regConfirmPasswordField, gbc);
-        
-        // Метка проверки совпадения паролей
-        gbc.gridx = 1;
-        gbc.gridy = 8;
+
         passwordMatchLabel = new JLabel();
-        passwordMatchLabel.setFont(new Font("Arial", Font.ITALIC, 10));
-        passwordMatchLabel.setOpaque(true);
-        passwordMatchLabel.setBackground(new Color(255, 255, 255, 200));
-        passwordMatchLabel.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        gbc.gridy = 8;
         fieldsPanel.add(passwordMatchLabel, gbc);
-        
-        KeyAdapter passwordCheckAdapter = new KeyAdapter() {
-            @Override
+
+        KeyAdapter ka = new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                
+                passwordMatchLabel.setText("");
             }
         };
-        regPasswordField.addKeyListener(passwordCheckAdapter);
-        regConfirmPasswordField.addKeyListener(passwordCheckAdapter);
-        
-        // ========== КНОПКИ ==========
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        buttonPanel.setOpaque(false); // Прозрачный фон, чтобы видеть фоновое изображение
-        
-        // Кнопка регистрации с овальными углами
-        JButton registerButton = createRoundedButton("Зарегистрироваться", new Color(255, 255, 255, 220));
-        registerButton.setForeground(Color.BLACK); // Черный текст
-        registerButton.setPreferredSize(new Dimension(200, 40));
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               
-            }
+
+        regPasswordField.addKeyListener(ka);
+        regConfirmPasswordField.addKeyListener(ka);
+
+        JPanel buttons = new JPanel();
+        buttons.setOpaque(false);
+
+        JButton register = createRoundedButton("Зарегистрироваться", new Color(255, 255, 255, 220));
+        register.addActionListener(e -> {
+            // TODO: вся логика регистрации уходит в service слой
         });
-        
-        // Кнопка "Назад" с овальными углами
-        JButton backButton = createRoundedButton("Назад", new Color(255, 255, 255, 220));
-        backButton.setForeground(Color.BLACK); // Черный текст
-        backButton.setPreferredSize(new Dimension(100, 40));
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Возвращаемся к панели авторизации
-                removeAll();
-                createAndShowAuthGUI();
-                revalidate();
-                repaint();
-            }
+
+        JButton back = createRoundedButton("Назад", new Color(255, 255, 255, 220));
+        back.addActionListener(e -> {
+            removeAll();
+            createAndShowAuthGUI();
+            revalidate();
+            repaint();
         });
-        
-        buttonPanel.add(backButton);
-        buttonPanel.add(registerButton);
-        
+
+        buttons.add(back);
+        buttons.add(register);
+
         mainPanel.add(fieldsPanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttons, BorderLayout.SOUTH);
+
         regPanel.add(mainPanel, BorderLayout.CENTER);
-        
         return regPanel;
+    }
+
+    // =========================================================
+    // UI UTILS
+    // =========================================================
+    private void setPlaceholder(JTextField field, String text) {
+        field.setText(text);
+        field.setForeground(Color.GRAY);
+    }
+
+    private void setPlaceholder(JPasswordField field, String text) {
+        field.setText(text);
+        field.setForeground(Color.GRAY);
+        field.setEchoChar((char) 0);
+    }
+
+    private JButton createRoundedButton(String text, Color bg) {
+        JButton button = new JButton(text);
+        button.setBackground(bg);
+        return button;
     }
 }
