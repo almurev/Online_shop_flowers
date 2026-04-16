@@ -128,9 +128,9 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         loginButton.addActionListener(e -> {
             String login = loginField.getText();
             String password = new String(passwordField.getPassword());
-
-            boolean success = userService.login(login, password);
             
+            // Проверка авторизации
+            boolean success = userService.login(login, password);
             if (success) {
             	JOptionPane.showMessageDialog(this, "Успешный вход");
             } else {
@@ -197,6 +197,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             public void keyReleased(KeyEvent e) {
                 String reg_login = regLoginField.getText();
                 
+                // Проверка ввода логина
                 boolean success_reg_login = userService.check_username(reg_login);
                 if (reg_login.isEmpty()){
                 	loginAvailabilityLabel.setText("");
@@ -274,6 +275,8 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         KeyAdapter ka = new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
+            	String reg_password = new String(regPasswordField.getPassword());
+            	String reg_conf_password = new String(regConfirmPasswordField.getPassword());
                 passwordMatchLabel.setText("");
             }
         };
