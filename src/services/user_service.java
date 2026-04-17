@@ -39,7 +39,7 @@ public class user_service {
 		return true;
 	}  
 	
-	public boolean check_username(String username) {
+	public boolean checkUsername(String username) {
 		if (username == null || username.isEmpty()) {
 			return false;
 		}
@@ -60,25 +60,64 @@ public class user_service {
 		if (password.length() < 8) {
 			return false;
 		} else {
-			boolean is_alphabet = false;
-			boolean is_number = false;;
+			boolean isAlphabet = false;
+			boolean isNumber = false;;
 			for (int element = 0; element < password.length(); element++) {
+				// charAt когда посимвольно идем по строке
 				char c = password.charAt(element);
 				if (Character.isLetter(c)) {
-					is_alphabet = true;
+					isAlphabet = true;
 				}
 				
 				if (Character.isDigit(c)) {
-					is_number = true;
+					isNumber = true;
 				}
 			}
 			
-			if (is_alphabet && is_number ) { return true; } else return false;
+			if (isAlphabet && isNumber ) { return true; } else return false;
 		}
 	}	
 	
 	// Проверка повтора и первого пароля
-	/*public boolean check_password_and_double_password(String password, String conf_password) {
+	public boolean checkPasswordAndDoublePassword(String password, String conf_password) {
+		if (password == null || conf_password == null) {
+			return false;
+		}
 		
-	}*/
+		if (password.isEmpty() || conf_password.isEmpty()) {
+			return false;
+		}
+		
+		return password.equals(conf_password);
+	}
+	
+	public boolean checkEmail(String email) {
+		if (email == null || email.isEmpty()) {
+			return false;
+		}
+		
+		// Contains для проверки наличия символа
+		if (!email.contains("@") || !email.contains(".")) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean checkPhone(String numberPhone) {
+		if (numberPhone == null || numberPhone.isEmpty()) {
+			return false;
+		}
+		
+		boolean isNumberPhone = false;
+		for (int element = 0; element < numberPhone.length(); element++) {
+			// charAt когда посимвольно идем по строке
+			char c = numberPhone.charAt(element);
+			
+			if (Character.isDigit(c)) {
+				isNumberPhone = true;
+			}
+		}
+		return isNumberPhone;
+	}
 }

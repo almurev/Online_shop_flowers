@@ -25,10 +25,12 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
     private JLabel loginAvailabilityLabel;   // Метка доступности логина
     private JLabel emailAvailabilityLabel;   // Метка доступности email
     private JLabel phoneAvailabilityLabel;   // Метка доступности телефона
+    private JLabel passwordRegLabel;
     private JLabel passwordMatchLabel;       // Метка совпадения паролей
     
     // ========== ИНИЦИАЛИЗАЦИЯ МЕТОДОВ ПРОВЕРКИ ==========
-    private user_service userService = new user_service();
+    // Создаем экземпляр класса для доступа к методам
+    private user_service userService = new user_service(); 
     
     // Ссылка на главное приложение
     private main_app mainApp;
@@ -198,7 +200,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
                 String reg_login = regLoginField.getText();
                 
                 // Проверка ввода логина
-                boolean success_reg_login = userService.check_username(reg_login);
+                boolean success_reg_login = userService.checkUsername(reg_login);
                 if (reg_login.isEmpty()){
                 	loginAvailabilityLabel.setText("");
                 } else if (success_reg_login) {
@@ -225,7 +227,16 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         regEmailField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                emailAvailabilityLabel.setText("");
+            	String reg_email = regEmailField.getText();
+            	
+            	boolean success_reg_email = userService.checkEmail(reg_email);
+            	if (reg_email.isEmpty()){
+            		emailAvailabilityLabel.setText("");
+                } else if (success_reg_email) {
+                	emailAvailabilityLabel.setText("Email корректный");
+                } else {
+                	emailAvailabilityLabel.setText("Email введен некорректно");
+                }
             }
         });
 
@@ -245,7 +256,17 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         regPhoneField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                phoneAvailabilityLabel.setText("");
+            	String reg_phone = regPhoneField.getText();
+    	
+            	boolean success_reg_phone = userService.checkPhone(reg_phone);
+            	
+            	if (reg_phone.isEmpty()){
+            		phoneAvailabilityLabel.setText("");
+                } else if (success_reg_phone) {
+                	phoneAvailabilityLabel.setText("Телефон корректный");
+                } else {
+                	phoneAvailabilityLabel.setText("Телефон введен некорректно");
+                } 
             }
         });
 
@@ -258,26 +279,48 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         regPasswordField = new JPasswordField();
         setPlaceholder(regPasswordField, "Введите пароль");
         fieldsPanel.add(regPasswordField, gbc);
+        passwordRegLabel = new JLabel();
+        
+        gbc.gridy = 7;
+        fieldsPanel.add(passwordRegLabel, gbc);
 
         // CONFIRM
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 8;
         fieldsPanel.add(new JLabel("Повтор:"), gbc);
 
         gbc.gridx = 1;
         regConfirmPasswordField = new JPasswordField();
         setPlaceholder(regConfirmPasswordField, "Повторите пароль");
         fieldsPanel.add(regConfirmPasswordField, gbc);
-
+        
+        gbc.gridy = 9;
         passwordMatchLabel = new JLabel();
-        gbc.gridy = 8;
         fieldsPanel.add(passwordMatchLabel, gbc);
 
         KeyAdapter ka = new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
             	String reg_password = new String(regPasswordField.getPassword());
             	String reg_conf_password = new String(regConfirmPasswordField.getPassword());
-                passwordMatchLabel.setText("");
+            	
+            	boolean success_reg_password = userService.check_password(reg_password);
+            	boolean success_reg_conf_password = userService.checkPasswordAndDoublePassword(reg_password, reg_conf_password);
+            	
+            	if (reg_password.isEmpty()){
+            		passwordRegLabel.setText("");
+                } else if (!success_reg_password) {
+                	passwordRegLabel.setText("Пароль не соответствует требованиям");
+                } else {
+                	passwordRegLabel.setText("Пароль подходит");
+                }
+            	
+            	if (reg_conf_password.isEmpty()) {
+            		passwordMatchLabel.setText("");
+            	} else if (!success_reg_conf_password) {
+            		passwordMatchLabel.setText("Пароли не совпадают");
+            	} else {
+            		passwordMatchLabel.setText("Пароли совпадают");
+            	}
             }
         };
 
@@ -289,7 +332,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         JButton register = createRoundedButton("Зарегистрироваться", new Color(255, 255, 255, 220));
         register.addActionListener(e -> {
-            // TODO: вся логика регистрации уходит в service слой
+            
         });
 
         JButton back = createRoundedButton("Назад", new Color(255, 255, 255, 220));
