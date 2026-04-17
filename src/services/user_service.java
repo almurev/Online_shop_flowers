@@ -52,7 +52,7 @@ public class user_service {
 	}
 	
 	// Проверка введенного пароля
-	public boolean check_password(String password) {
+	public boolean checkPassword(String password) {
 		if (password == null || password.isEmpty()) {
 			return false;
 		}

@@ -303,7 +303,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             	String reg_password = new String(regPasswordField.getPassword());
             	String reg_conf_password = new String(regConfirmPasswordField.getPassword());
             	
-            	boolean success_reg_password = userService.check_password(reg_password);
+            	boolean success_reg_password = userService.checkPassword(reg_password);
             	boolean success_reg_conf_password = userService.checkPasswordAndDoublePassword(reg_password, reg_conf_password);
             	
             	if (reg_password.isEmpty()){
@@ -332,7 +332,28 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         JButton register = createRoundedButton("Зарегистрироваться", new Color(255, 255, 255, 220));
         register.addActionListener(e -> {
+            String regUsername = regLoginField.getText();
+            String regEmail = regEmailField.getText();
+            String regPhone = regPhoneField.getText();
+            String regPassword = new String(regPasswordField.getPassword());
+            String regConfPassword = new String(regConfirmPasswordField.getPassword());
             
+            boolean checkUsername = userService.checkUsername(regUsername);
+            boolean checkEmail = userService.checkEmail(regEmail);
+            boolean checkPhone = userService.checkPhone(regPhone);
+            boolean checkPassword = userService.checkPassword(regPassword);
+            boolean checkConfPassword = userService.checkPasswordAndDoublePassword(regPassword, regConfPassword);
+            
+            if (checkUsername && checkEmail && checkPhone && checkPassword && checkConfPassword) {
+                boolean success = userService.register(regUsername, regPassword);
+                	if (success) {
+                		JOptionPane.showMessageDialog(this, "Регистрация прошла успешно");
+                	} else {
+                		JOptionPane.showMessageDialog(this, "Логин уже существует");
+                	}
+            } else {
+            	JOptionPane.showMessageDialog(this, "Заполните все поля корректно");
+            }
         });
 
         JButton back = createRoundedButton("Назад", new Color(255, 255, 255, 220));
