@@ -15,7 +15,11 @@ public class main_app {
 	private void create_frame() {
 		// Создаем окно приложения
 		frame = new JFrame("Онлайн-магазин цветов");
-		frame.setSize(600, 600);
+		frame.setSize(450, 450);
+		
+		//Запрещаем изменять размер
+		//frame.setResizable(false); 
+		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// Запихиваем в менеджер компоновки вкладки для открытия разделов

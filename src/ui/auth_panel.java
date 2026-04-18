@@ -90,23 +90,47 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         setLayout(new BorderLayout());
 
-        String photoPath = "photo\\auth.png";
+        String photoPath = "photo\\auth.jpeg";
 
         BackgroundPanel mainPanel = new BackgroundPanel(photoPath);
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel fieldsPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); 
         fieldsPanel.setOpaque(false);
-
-        loginField = new JTextField();
-        setPlaceholder(loginField, "Введите логин");
-
-        passwordField = new JPasswordField();
-        setPlaceholder(passwordField, "Введите пароль");
         
+        
+        JLabel loginLabel = new JLabel("Логин:");
+        loginLabel.setOpaque(false);
+        gbc.gridx = 0; 
+        gbc.gridy = 0;
+        fieldsPanel.add(loginLabel, gbc);
+        
+        loginField = new JTextField(15);
+        setPlaceholder(loginField, "Введите логин");
+        loginField.setPreferredSize(new Dimension(200, 35)); 
+        gbc.gridx = 1; 
+        gbc.gridy = 0;
+        fieldsPanel.add(loginField, gbc);
+        
+        JLabel passwordLabel = new JLabel("Пароль:");
+        passwordLabel.setOpaque(false);
+        gbc.gridx = 0; 
+        gbc.gridy = 1;
+        fieldsPanel.add(passwordLabel, gbc);
+        
+        passwordField = new JPasswordField(15);
+        setPlaceholder(passwordField, "Введите пароль");
+        passwordField.setPreferredSize(new Dimension(200, 35));
+        gbc.gridx = 1; 
+        gbc.gridy = 1;
+        fieldsPanel.add(passwordField, gbc);
         
 
         showPasswordCheckBox = new JCheckBox("Показать пароль");
         showPasswordCheckBox.setOpaque(false);
+        gbc.gridx = 1; 
+        gbc.gridy = 2;
         showPasswordCheckBox.addActionListener(e -> {
             if (showPasswordCheckBox.isSelected()) {
                 passwordField.setEchoChar((char) 0);
@@ -114,17 +138,13 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
                 passwordField.setEchoChar('•');
             }
         });
-
-        JLabel loginLabel = new JLabel("Логин:");
-        JLabel passwordLabel = new JLabel("Пароль:");
-
-        fieldsPanel.add(loginLabel);
-        fieldsPanel.add(loginField);
-        fieldsPanel.add(passwordLabel);
-        fieldsPanel.add(passwordField);
-
-        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+        fieldsPanel.add(showPasswordCheckBox, gbc);
+        
+        
+        JPanel buttonPanel = new JPanel(new GridBagLayout()); 
         buttonPanel.setOpaque(false);
+        GridBagConstraints gbcButtons = new GridBagConstraints();
+        gbcButtons.insets = new Insets(10, 10, 100, 10);
 
         JButton loginButton = createRoundedButton("Войти", new Color(255, 255, 255, 220));
         loginButton.addActionListener(e -> {
@@ -139,6 +159,10 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             	JOptionPane.showMessageDialog(this, "Неверный логин или пароль");
             }
         });
+        gbcButtons.gridx = 0; 
+        gbcButtons.gridy = 0;
+        buttonPanel.add(loginButton, gbcButtons);
+        
 
         JButton registerLink = createRoundedButton("Регистрация", new Color(255, 255, 255, 220));
         registerLink.addActionListener(e -> {
@@ -147,10 +171,9 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             revalidate();
             repaint();
         });
-
-        buttonPanel.add(showPasswordCheckBox);
-        buttonPanel.add(loginButton);
-        buttonPanel.add(registerLink);
+        gbcButtons.gridx = 1; 
+        gbcButtons.gridy = 0;
+        buttonPanel.add(registerLink, gbcButtons);
 
         JPanel container = new JPanel(new BorderLayout());
         container.setOpaque(false);
@@ -161,6 +184,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         mainPanel.add(container, BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
+        
         revalidate();
         repaint();
     }
@@ -172,11 +196,11 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         JPanel regPanel = new JPanel(new BorderLayout());
 
-        BackgroundPanel mainPanel = new BackgroundPanel("photo\\reg1.png");
+        BackgroundPanel mainPanel = new BackgroundPanel("photo\\reg.jpeg");
 
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
         fieldsPanel.setOpaque(false);
-
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(8, 8, 8, 8);
@@ -188,6 +212,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         gbc.gridx = 1;
         regLoginField = new JTextField();
+        regLoginField.setPreferredSize(new Dimension(200, 35));
         setPlaceholder(regLoginField, "Введите логин");
         fieldsPanel.add(regLoginField, gbc);
 
@@ -218,6 +243,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         gbc.gridx = 1;
         regEmailField = new JTextField();
+        regEmailField.setPreferredSize(new Dimension(200, 35));
         setPlaceholder(regEmailField, "example@mail.com");
         fieldsPanel.add(regEmailField, gbc);
 
@@ -244,10 +270,11 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         gbc.gridx = 0;
         gbc.gridy = 4;
         fieldsPanel.add(new JLabel("Телефон:"), gbc);
-
         gbc.gridx = 1;
         regPhoneField = new JTextField();
+        
         setPlaceholder(regPhoneField, "+7 (999) 123-45-67");
+        regPhoneField.setPreferredSize(new Dimension(200, 35));
         fieldsPanel.add(regPhoneField, gbc);
 
         phoneAvailabilityLabel = new JLabel();
@@ -277,6 +304,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         gbc.gridx = 1;
         regPasswordField = new JPasswordField();
+        regPasswordField.setPreferredSize(new Dimension(200, 35));
         setPlaceholder(regPasswordField, "Введите пароль");
         fieldsPanel.add(regPasswordField, gbc);
         passwordRegLabel = new JLabel();
@@ -291,6 +319,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 
         gbc.gridx = 1;
         regConfirmPasswordField = new JPasswordField();
+        regConfirmPasswordField.setPreferredSize(new Dimension(200, 35));
         setPlaceholder(regConfirmPasswordField, "Повторите пароль");
         fieldsPanel.add(regConfirmPasswordField, gbc);
         
@@ -327,8 +356,22 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
         regPasswordField.addKeyListener(ka);
         regConfirmPasswordField.addKeyListener(ka);
 
-        JPanel buttons = new JPanel();
+        JPanel buttons = new JPanel(new GridBagLayout());
+        GridBagConstraints Bgbc = new GridBagConstraints();
+        Bgbc.insets = new Insets(10, 10, 20, 10); 
         buttons.setOpaque(false);
+        
+
+        JButton back = createRoundedButton("Назад", new Color(255, 255, 255, 220));
+        Bgbc.gridx = 0; 
+        Bgbc.gridy = 0;
+        back.addActionListener(e -> {
+            removeAll();
+            createAndShowAuthGUI();
+            revalidate();
+            repaint();
+        });
+        buttons.add(back, Bgbc);
 
         JButton register = createRoundedButton("Зарегистрироваться", new Color(255, 255, 255, 220));
         register.addActionListener(e -> {
@@ -355,17 +398,10 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             	JOptionPane.showMessageDialog(this, "Заполните все поля корректно");
             }
         });
+        Bgbc.gridx = 1; 
+        Bgbc.gridy = 0;
+        buttons.add(register, Bgbc);
 
-        JButton back = createRoundedButton("Назад", new Color(255, 255, 255, 220));
-        back.addActionListener(e -> {
-            removeAll();
-            createAndShowAuthGUI();
-            revalidate();
-            repaint();
-        });
-
-        buttons.add(back);
-        buttons.add(register);
 
         mainPanel.add(fieldsPanel, BorderLayout.CENTER);
         mainPanel.add(buttons, BorderLayout.SOUTH);
@@ -377,15 +413,56 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
     // =========================================================
     // UI UTILS
     // =========================================================
+ // Для обычного текстового поля
     private void setPlaceholder(JTextField field, String text) {
         field.setText(text);
         field.setForeground(Color.GRAY);
+        
+        // Добавляем обработчик потери/получения фокуса
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (field.getText().equals(text)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                }
+            }
+            
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (field.getText().isEmpty()) {
+                    field.setText(text);
+                    field.setForeground(Color.GRAY);
+                }
+            }
+        });
     }
 
-    private void setPlaceholder(JPasswordField field, String text) {
+    // Для поля пароля
+    private void setPlaceholderForPassword(JPasswordField field, String text) {
         field.setText(text);
         field.setForeground(Color.GRAY);
-        field.setEchoChar((char) 0);
+        field.setEchoChar((char) 0);  // Показываем placeholder как обычный текст
+        
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (new String(field.getPassword()).equals(text)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                    field.setEchoChar('•');  // Возвращаем маскировку
+                }
+            }
+            
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (field.getPassword().length == 0) {
+                    field.setText(text);
+                    field.setForeground(Color.GRAY);
+                    field.setEchoChar((char) 0);  // Показываем placeholder
+                }
+            }
+        });
     }
 
     private JButton createRoundedButton(String text, Color bg) {
