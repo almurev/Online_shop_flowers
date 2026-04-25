@@ -1,4 +1,7 @@
 package main;
+import db.db_connection;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,6 +58,15 @@ public class main_app {
 	
 	// Запускаем окошко
 	public static void main(String[] args) {
+		try {
+	        Connection conn = db_connection.getConnection();
+	        System.out.println("Подключение к БД успешно");
+	        conn.close(); // закрываем соединение (важно)
+	    } catch (SQLException e) {
+	        System.out.println("Ошибка подключения к БД");
+	        e.printStackTrace();
+	    }
+	    
 		main_app app = new main_app();
 		app.create_frame();
 	}
