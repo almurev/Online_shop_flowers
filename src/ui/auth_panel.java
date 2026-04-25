@@ -155,6 +155,8 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
             boolean success = userService.login(login, password);
             if (success) {
             	JOptionPane.showMessageDialog(this, "Успешный вход");
+            	// Переключаем через метод showPanel в main_app
+            	mainApp.showPanel("Каталог");
             } else {
             	JOptionPane.showMessageDialog(this, "Неверный логин или пароль");
             }
