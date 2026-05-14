@@ -1,72 +1,82 @@
 package main;
-import db.db_connection;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.swing.*;
 import java.awt.*;
-import ui.auth_panel;
 
-// Класс создания окна с переключением разделов в будущем
+import ui.auth_panel;
+import ui.profile_panel;
+
+// Класс создания окна с переключением разделов
 public class main_app {
 	
 	private JFrame frame;
 	private JPanel panels;
 	private CardLayout card_layout;
 	
+	// Текущий пользователь после входа
+	private String currentUsername;
+	
+	// Панель профиля, чтобы потом подгружать туда данные пользователя
+	private profile_panel profilePanel;
+	
 	// Класс создания окна, вкладок для приложения
 	private void create_frame() {
 		// Создаем окно приложения
 		frame = new JFrame("Онлайн-магазин цветов");
-		frame.setSize(450, 450);
-		
-		//Запрещаем изменять размер
-		//frame.setResizable(false); 
-		
+		frame.setSize(700, 600);
+		frame.setMinimumSize(new Dimension(450, 450));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
 		
 		// Запихиваем в менеджер компоновки вкладки для открытия разделов
 		card_layout = new CardLayout();
 		panels = new JPanel(card_layout);
 		
 		// Создаем панели и добавляем в контейнер
-		// Потом будем тянуть из ui и будет:
-		// CatalogPanel catalogPanel = new CatalogPanel();
-		
-		JPanel catalogPanel = new JPanel();
+		JPanel catalogPanel = new JPanel(new BorderLayout());
+		catalogPanel.add(new JLabel("Каталог", SwingConstants.CENTER), BorderLayout.CENTER);
 		panels.add(catalogPanel, "Каталог");
 		
-		JPanel profile_panel = new JPanel();
-		panels.add(profile_panel, "Профиль");
+		profilePanel = new profile_panel(this);
+		panels.add(profilePanel, "Профиль");
 		
-		JPanel basket_pannel = new JPanel();
-		panels.add(basket_pannel, "Корзина");
+		JPanel basketPanel = new JPanel(new BorderLayout());
+		basketPanel.add(new JLabel("Корзина", SwingConstants.CENTER), BorderLayout.CENTER);
+		panels.add(basketPanel, "Корзина");
 		
-		// Добавляем данную панель в frame как стартовую при запуске
+		// Добавляем панель авторизации как стартовую
 		auth_panel AuthPanel = new auth_panel(this);
 		panels.add(AuthPanel, "Авторизация");
-		showPanel("Авторизация");
 		
 		frame.add(panels, BorderLayout.CENTER);
+		
+		showPanel("Авторизация");
+		
 		frame.setVisible(true);
 	}
 	
-	// Создаем переключение панелей (вкладки)
+	// Создаем переключение панелей
 	public void showPanel(String name) {
-	    card_layout.show(panels, name);
+		// Если открываем профиль, загружаем данные текущего пользователя
+		if (name.equals("Профиль")) {
+			profilePanel.loadUser(currentUsername);
+		}
+		
+		card_layout.show(panels, name);
+	}
+	
+	// Сохраняем логин текущего пользователя
+	public void setCurrentUsername(String username) {
+		this.currentUsername = username;
+	}
+	
+	// Получаем логин текущего пользователя
+	public String getCurrentUsername() {
+		return currentUsername;
 	}
 	
 	// Запускаем окошко
 	public static void main(String[] args) {
-		try {
-	        Connection conn = db_connection.getConnection();
-	        System.out.println("Подключение к БД успешно");
-	        conn.close(); // закрываем соединение (важно)
-	    } catch (SQLException e) {
-	        System.out.println("Ошибка подключения к БД");
-	        e.printStackTrace();
-	    }
-	    
 		main_app app = new main_app();
 		app.create_frame();
 	}
