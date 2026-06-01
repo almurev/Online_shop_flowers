@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import ui.auth_panel;
+import ui.catalog_panel;
 import ui.profile_panel;
 
 // Класс создания окна с переключением разделов
@@ -21,48 +22,60 @@ public class main_app {
 	
 	// Класс создания окна, вкладок для приложения
 	private void create_frame() {
-		// Создаем окно приложения
-		frame = new JFrame("Онлайн-магазин цветов");
-		frame.setSize(700, 600);
-		frame.setMinimumSize(new Dimension(450, 450));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		
-		// Запихиваем в менеджер компоновки вкладки для открытия разделов
-		card_layout = new CardLayout();
-		panels = new JPanel(card_layout);
-		
-		// Создаем панели и добавляем в контейнер
-		JPanel catalogPanel = new JPanel(new BorderLayout());
-		catalogPanel.add(new JLabel("Каталог", SwingConstants.CENTER), BorderLayout.CENTER);
-		panels.add(catalogPanel, "Каталог");
-		
-		profilePanel = new profile_panel(this);
-		panels.add(profilePanel, "Профиль");
-		
-		JPanel basketPanel = new JPanel(new BorderLayout());
-		basketPanel.add(new JLabel("Корзина", SwingConstants.CENTER), BorderLayout.CENTER);
-		panels.add(basketPanel, "Корзина");
-		
-		// Добавляем панель авторизации как стартовую
-		auth_panel AuthPanel = new auth_panel(this);
-		panels.add(AuthPanel, "Авторизация");
-		
-		frame.add(panels, BorderLayout.CENTER);
-		
-		showPanel("Авторизация");
-		
-		frame.setVisible(true);
+	    frame = new JFrame("Онлайн-магазин цветов");
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    frame.setLocationRelativeTo(null);
+	    
+	    card_layout = new CardLayout();
+	    panels = new JPanel(card_layout);
+	    
+	    // Создаем панели
+	    JPanel catalogPanel = new catalog_panel(this);
+	    panels.add(catalogPanel, "Каталог");
+	    
+	    profilePanel = new profile_panel(this);
+	    panels.add(profilePanel, "Профиль");
+	    
+	    JPanel basketPanel = new JPanel(new BorderLayout());
+	    basketPanel.add(new JLabel("Корзина", SwingConstants.CENTER), BorderLayout.CENTER);
+	    panels.add(basketPanel, "Корзина");
+	    
+	    auth_panel AuthPanel = new auth_panel(this);
+	    panels.add(AuthPanel, "Авторизация");
+	    
+	    frame.add(panels, BorderLayout.CENTER);
+	    
+	    // Устанавливаем маленький размер для авторизации
+	    frame.setSize(600, 600);
+	    frame.setMinimumSize(new Dimension(550, 500));
+	    frame.setVisible(true);
+	    
+	    showPanel("Авторизация");
 	}
 	
-	// Создаем переключение панелей
+	// Метод для установки размера окна при переключении панелей
+	public void setPanelSize(String panelName) {
+	    if (panelName.equals("Авторизация")) {
+	        frame.setSize(600, 600);
+	        frame.setMinimumSize(new Dimension(550, 500));
+	    } else {
+	        frame.setSize(1000, 750);
+	        frame.setMinimumSize(new Dimension(800, 600));
+	    }
+	    frame.setLocationRelativeTo(null);  // центрируем окно после изменения размера
+	}
+
+	// Переопредели метод showPanel (или создай новый)
 	public void showPanel(String name) {
-		// Если открываем профиль, загружаем данные текущего пользователя
-		if (name.equals("Профиль")) {
-			profilePanel.loadUser(currentUsername);
-		}
-		
-		card_layout.show(panels, name);
+	    // Меняем размер в зависимости от панели
+	    setPanelSize(name);
+	    
+	    // Если открываем профиль, загружаем данные текущего пользователя
+	    if (name.equals("Профиль")) {
+	        profilePanel.loadUser(currentUsername);
+	    }
+	    
+	    card_layout.show(panels, name);
 	}
 	
 	// Сохраняем логин текущего пользователя
