@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import main.main_app;
 import models.product;
 import services.product_service;
+import services.cart_service;
 
 public class catalog_panel extends JPanel {
 
@@ -18,6 +19,8 @@ public class catalog_panel extends JPanel {
     private product_service productService = new product_service();
     private List<product> allProducts = new ArrayList<>();
     private List<product> filteredProducts = new ArrayList<>();
+    
+    private cart_service cartService;
     
     // UI компоненты
     private JPanel cardPanel;
@@ -29,8 +32,9 @@ public class catalog_panel extends JPanel {
     private JCheckBox cbPostcards;
     private JCheckBox cbToys;
     
-    public catalog_panel(main_app app) {
+    public catalog_panel(main_app app, cart_service cartService) {
         this.mainApp = app;
+        this.cartService = cartService;
         setLayout(new BorderLayout());
         initUI();
         loadProducts();
@@ -342,7 +346,6 @@ public class catalog_panel extends JPanel {
         card.setMaximumSize(new Dimension(600, 130));
         card.setPreferredSize(new Dimension(600, 130));
         
-        // ========== ЛЕВАЯ ЧАСТЬ - КАРТИНКА ==========
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setOpaque(false);
         imagePanel.setPreferredSize(new Dimension(100, 100));
@@ -364,7 +367,6 @@ public class catalog_panel extends JPanel {
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imagePanel.add(imageLabel, BorderLayout.CENTER);
         
-        // ========== ЦЕНТРАЛЬНАЯ ЧАСТЬ - ИНФОРМАЦИЯ ==========
         JPanel infoPanel = new JPanel(new BorderLayout(5, 5));
         infoPanel.setOpaque(false);
         
@@ -398,14 +400,49 @@ public class catalog_panel extends JPanel {
         bottomInfo.add(stockLabel);
         infoPanel.add(bottomInfo, BorderLayout.SOUTH);
         
-        // ========== ПРАВАЯ ЧАСТЬ - КНОПКА ==========
         JButton addToCartButton = new JButton("В корзину");
         addToCartButton.setBackground(new Color(255, 220, 210));
         addToCartButton.setFocusPainted(false);
         addToCartButton.setPreferredSize(new Dimension(100, 35));
         addToCartButton.setEnabled(product.getCountInStock() > 0);
-        // TODO: добавить логику добавления в корзину
-        
+
+        addToCartButton.addActionListener(e -> {
+            // Спрашиваем количество
+            String quantityStr = JOptionPane.showInputDialog(
+                this,
+                "Введите количество:",
+                "Добавление в корзину",
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (quantityStr == null) return; // Пользователь отменил
+            
+            try {
+                int quantity = Integer.parseInt(quantityStr.trim());
+                if (quantity <= 0) {
+                    JOptionPane.showMessageDialog(this, "Количество должно быть больше 0!");
+                    return;
+                }
+                
+                if (cartService.addToCart(product.getId(), quantity)) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Товар добавлен в корзину!", 
+                        "Успех", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Недостаточно товара на складе или товар не найден!", 
+                        "Ошибка", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, 
+                    "Введите корректное число!", 
+                    "Ошибка", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         // Собираем карточку
         card.add(imagePanel, BorderLayout.WEST);
         card.add(infoPanel, BorderLayout.CENTER);

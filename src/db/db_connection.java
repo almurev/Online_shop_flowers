@@ -9,7 +9,7 @@ public class db_connection {
 	private static final String URL = "jdbc:mysql://localhost:3306/online_shop_flowers_db";
 	// Логин и пароль для входа в MySQL
 	private static final String USER = "root";
-	private static final String PASSWORD = "1910";
+	private static final String PASSWORD = "12345678";
 	
 	// Метод для получения соединения с базой данных
 	public static Connection getConnection() throws SQLException {
