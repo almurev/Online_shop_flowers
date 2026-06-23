@@ -25,9 +25,7 @@ public class profile_panel extends JPanel {
 		createProfileGUI();
 	}
 	
-	// =========================================================
 	// UI: ФОНОВАЯ ПАНЕЛЬ
-	// =========================================================
 	class BackgroundPanel extends JPanel {
 		private Image backgroundImage;
 		

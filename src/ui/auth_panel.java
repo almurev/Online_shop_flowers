@@ -41,9 +41,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 		createAndShowAuthGUI();
 	}
 	
-	// =========================================================
 	// UI: ФОНОВАЯ ПАНЕЛЬ
-	// =========================================================
 	class BackgroundPanel extends JPanel {
 		private Image backgroundImage;
 		
@@ -84,9 +82,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 		}
 	}
 	
-	// =========================================================
 	// UI: АВТОРИЗАЦИЯ
-	// =========================================================
 	public void createAndShowAuthGUI() {
 		removeAll();
 		
@@ -212,9 +208,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 		repaint();
 	}
 	
-	// =========================================================
 	// UI: РЕГИСТРАЦИЯ
-	// =========================================================
 	private JPanel createRegPanel() {
 		JPanel regPanel = new JPanel(new BorderLayout());
 		
@@ -453,9 +447,7 @@ public class auth_panel extends JPanel { // Теперь наследуемся 
 		return regPanel;
 	}
 	
-	// =========================================================
 	// UI UTILS
-	// =========================================================
 	
 	// Для обычного текстового поля
 	private void setPlaceholder(JTextField field, String text) {
